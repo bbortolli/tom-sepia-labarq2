@@ -21,22 +21,20 @@ int main()
         fseek (file , 0 , SEEK_END);
         tamanhoFile = ftell (file);
         rewind (file);
-        cout << "- ARQUIVO LIDO COM SUCESSO." << endl << "- TAMANHO FILE: " << tamanhoFile << " bytes" << endl;
 
         // Alocar memoria suficiente
         imagem = (unsigned char*) malloc (sizeof(unsigned char)*tamanhoFile);
         if(imagem == NULL)
-            exit(1);
+            exit(2);
 
         // Leitura dos dados
         fgets(formato,10, file);
         fgets(info,30, file);
         tamanhoImg = fread(imagem,sizeof(unsigned char),tamanhoFile,file);
         fclose(file);
-        cout << "- TAMANHO IMAGEM(sem cabecalho): " << tamanhoImg << " bytes" << endl;
     }
     else
-        exit(2);
+        exit(1);
 
     //Calculos para o tom de sepia
     for(int j = 0; j < tamanhoImg-1; j+=3)
@@ -46,20 +44,22 @@ int main()
         green = int(imagem[j+1]);
         blue = int(imagem[j+2]);
         media = int((red + (2*green) + blue)/4);
+
         // Aplicação do efeito sépia
         newColor = int(0.3*media + 0.59*media + 0.11*media);
         imagem[j] = min(255, newColor+50);
         imagem[j+1] = min(255, newColor+25);
         imagem[j+2] = max(0, newColor-20);
     }
+
     // Escrever novo arquivo
     if((file = fopen("teste.pnm","wb")) != NULL)
     {
         fputs(formato,file);
         fputs(info,file);
         fwrite(imagem , sizeof(unsigned char), tamanhoImg, file);
-        cout << "- ARQUIVO ESCRITO COM SUCESSO." << endl;
     }
+
     fclose(file);
     free(imagem);
 
