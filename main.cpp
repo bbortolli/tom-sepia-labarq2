@@ -26,12 +26,7 @@ int main()
         // Alocar memoria suficiente
         imagem = (unsigned char*) malloc (sizeof(unsigned char)*tamanhoFile);
         if(imagem == NULL)
-        {
-            cout << "Erro de memoria! ";
             exit(1);
-        }
-        else
-            cout << "- MEMORIA ALOCADA!" << endl;
 
         // Leitura dos dados
         fgets(formato,10, file);
@@ -41,10 +36,7 @@ int main()
         cout << "- TAMANHO IMAGEM(sem cabecalho): " << tamanhoImg << " bytes" << endl;
     }
     else
-    {
-        cout << "FALHA NA LEITURA!!!";
         exit(2);
-    }
 
     //Calculos para o tom de sepia
     for(int j = 0; j < tamanhoImg-1; j+=3)
