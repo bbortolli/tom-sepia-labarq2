@@ -1,21 +1,20 @@
 #include <iostream>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <algorithm>
 #include <time.h>
 
-using namespace std;
-
 int main()
 {
+    clock_t start, end;
+    double cpu_time_used;
     char formato[5], info[24];
     unsigned char * imagem;
     int media, newColor, red, green, blue;
     FILE *file;
     long int tamanhoFile, tamanhoImg;
 
-    if((file = fopen("UFSCar.pnm","rb")) != NULL)
+    if((file = fopen("Luna.pnm","rb")) != NULL)
     {
         // Pegar tamanho do arquivo
         fseek (file , 0 , SEEK_END);
@@ -36,6 +35,7 @@ int main()
     else
         exit(1);
 
+    start = clock();
     //Calculos para o tom de sepia
     for(int j = 0; j < tamanhoImg-1; j+=3)
     {
@@ -47,10 +47,11 @@ int main()
 
         // Aplicação do efeito sépia
         newColor = int(0.3*media + 0.59*media + 0.11*media);
-        imagem[j] = min(255, newColor+50);
-        imagem[j+1] = min(255, newColor+25);
-        imagem[j+2] = max(0, newColor-20);
+        imagem[j] = std::min(255, newColor+50);
+        imagem[j+1] = std::min(255, newColor+25);
+        imagem[j+2] = std::max(0, newColor-20);
     }
+    end = clock();
 
     // Escrever novo arquivo
     if((file = fopen("teste.pnm","wb")) != NULL)
@@ -62,6 +63,8 @@ int main()
 
     fclose(file);
     free(imagem);
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    std::cout << "Tempo do processamento em segundos: " << cpu_time_used << std::endl;
 
     return 0;
 }
