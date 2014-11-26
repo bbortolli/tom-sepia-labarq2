@@ -1,6 +1,11 @@
 tom-sepia-labarq2
 =================
 
-Aplica o efeito sépia a uma imagem (.pnm)
+Trabalho dos alunos:
+Bruno Fernandes Bortolli
+Ricardo Giardina Leite
 
-Projeto da matéria: Laboratório de Arquitetura de Computadores 2. Este código foi desenvolvido para fim acadêmico. Não fazer uso para outros fins.
+Tema: Tom de sépia
+Descrição: Aplica o efeito sépia a uma imagem no formato .pnm
+
+- Este código é desenvolvido para fins acadêmicos, não fazer uso para outros fins.
