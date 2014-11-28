@@ -40,9 +40,10 @@ int main(int argc,  char** argv)
     //Calculos para o tom de sepia
     for(j = 0; j < tamanhoImg-1; j+=3)
     {
-        // Calculo do grayscale
         // media = 0.3*r + 0.59*g + 0.11*b
-        // r = media + 40 ; g = media + 20; b = media - 20
+        // r = media + 40
+        // g = media + 20
+        // b = media - 20
 
         red = (int)imagem[j];
         green = (int)imagem[j+1];
