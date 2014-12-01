@@ -45,7 +45,7 @@ int main()
         blue = int(imagem[j+2]);
         media = int((red + (2*green) + blue)/4);
 
-        // Aplicação do efeito sépia
+        // AplicaÃ§Ã£o do efeito sÃ©pia
         newColor = int(0.3*media + 0.59*media + 0.11*media);
         imagem[j] = std::min(255, newColor+50);
         imagem[j+1] = std::min(255, newColor+25);
