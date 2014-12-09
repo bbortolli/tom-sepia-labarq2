@@ -13,10 +13,10 @@ Descrição: Aplica o efeito sépia a uma imagem no formato .pnm
 
 =================
 Etapas concluídas:
-- Código em C puro
-- Código em C com inline assembly ( processamento sequencial )
-- Código em C com inline assembly ( processamento vetorial )
-- Junção dos dois processamentos num código fonte
+- Código em C puro (FIltro_Em_C.cpp)
+- Código em C com inline assembly, processamento sequencial (filtro_sepia.c)
+- Código em C com inline assembly ( processamento vetorial ) (SSE.c)
+- Junção dos dois processamentos num código fonte (sepia_final.c)
 
 =================
 Este código é desenvolvido para fins acadêmicos, não fazer uso para outros fins.
