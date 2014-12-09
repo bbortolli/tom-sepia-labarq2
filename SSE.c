@@ -15,10 +15,10 @@ int main(int argc, char** argv)
 	double cpu_time_used;
 	char formato[5], info[24];
 	unsigned char * imagem, *ponteiro, soma[8] = { 40, 20, 0, 40, 20, 0, 0, 0 }, subtracao[8] = { 0, 0, 20, 0, 0, 20, 0, 0 };
-	int j;
+	int j, num;
 	FILE *file;
 	long int tamanhoFile, tamanhoImg;
-	char inputtFileDir[64] = "in\\", outputFileDir[64] = "out\\";
+	char inputtFileDir[64] = "in\\", outputFileDir[64] = "out\\", *pos, auxiliar[64] = "a";
 	struct pontoflutuante fatores;
 
 	fatores.x = 0.3; fatores.y = 0.59; fatores.z = 0.11; fatores.w = 1.0;
@@ -27,6 +27,13 @@ int main(int argc, char** argv)
 
 	strcat(inputtFileDir, argv[1]);
 	strcat(outputFileDir, argv[1]);
+
+	pos = strchr(outputFileDir, '.');
+	num = pos - outputFileDir;
+	strncpy(auxiliar, outputFileDir, num);
+	strcat(auxiliar, "_simd_SSE2");
+	strcat(auxiliar, pos);
+	strcpy(outputFileDir, auxiliar);
 
 
 	if ((file = fopen(inputtFileDir, "rb")) != NULL)
@@ -70,18 +77,18 @@ int main(int argc, char** argv)
 
 			__asm
 			{
-				// Converte para floats 8 bytes da imagem e e coloca em b e c
+				// Converte para floats 8 bytes da imagem; XMM1 contém 4 primeiros bytes (R1, G1, B1, R2), XMM2 contém os proximos bytes (R2, G2, B2, R3)
 				mov edx, ponteiro
 				movd xmm1, [edx]
 				pxor xmm4, xmm4
-				punpcklbw xmm1, xmm4
-				punpcklwd xmm1, xmm4
-				cvtdq2ps xmm1, xmm1
+				punpcklbw xmm1, xmm4		// Converte 4 bytes para 4 Words
+				punpcklwd xmm1, xmm4		// Converte 4 Words para 4 Dwords
+				cvtdq2ps xmm1, xmm1			// Converte 4 DWords para 4 floats de precisao simples
 
 
 				movd xmm2, [edx + 3]
 				punpcklbw xmm2, xmm4
-				punpcklwd xmm2, xmm4
+				punpcklwd xmm2, xmm4	
 				cvtdq2ps xmm2, xmm2
 
 				
@@ -92,11 +99,11 @@ int main(int argc, char** argv)
 				mulps xmm2, xmm0
 
 
-				cvtps2dq xmm1,xmm1
+				cvtps2dq xmm1,xmm1			// Converte 4 floats para 4 DWords
 				cvtps2dq xmm2,xmm2
 
-				packusdw xmm1, xmm4
-				packuswb xmm1, xmm4
+				packusdw xmm1, xmm4			// Converte 4 Dwords para 4 Words
+				packuswb xmm1, xmm4			// Converte 4 Words para 4 bytes
 				packusdw xmm2, xmm4
 				packuswb xmm2, xmm4
 
@@ -107,10 +114,10 @@ int main(int argc, char** argv)
 				mov eax, 0
 				mov al, [edx]
 				add al, [edx + 1]
-				add al, [edx + 2]
+				add al, [edx + 2]			//Soma a R o valor de G e B
 
-				mov [edx], al
-				mov [edx + 1], al
+				mov [edx], al				// R = R+G+B
+				mov [edx + 1], al	
 				mov [edx + 2], al
 
 				mov al, [edx + 3]
@@ -123,7 +130,7 @@ int main(int argc, char** argv)
 
 
 				
-				movq mm0, [edx]
+				movq mm0, [edx]		// Move para mm0 os 8 primeiros bytes, e soma determinadas cores com um peso (R += 40, G += 20, B -= 20)
 				movq mm3, soma
 				movq mm4, subtracao
 				paddusb mm0, mm3
@@ -166,4 +173,3 @@ Referencias:
 [1]: http://neilkemp.us/src/sse_tutorial/sse_tutorial.html
 
 */
-
