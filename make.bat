@@ -1,4 +1,4 @@
 if not exist out mkdir out
-cl sepia_filtro.c
+cl sepia_final.c
 
-for /f %%f in ('dir /b in\') do sepia_filtro %%f
+for /f %%f in ('dir /b in\') do sepia_final %%f
