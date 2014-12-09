@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <time.h>
-#include <xmmintrin.h>
 
 // referencia: [1]
 struct pontoflutuante
@@ -15,12 +14,12 @@ int main(int argc, char** argv)
 	clock_t start, end;
 	double cpu_time_used;
 	char formato[5], info[24];
-	unsigned char * imagem, *temp, soma[8] = { 40, 20, 0, 40, 20, 0, 0, 0 }, subtracao[8] = { 0, 0, 20, 0, 0, 20, 0, 0 };
-	int media, redt, red, green, blue, j, *temp2, *temp3, * temp4;
+	unsigned char * imagem, *ponteiro, soma[8] = { 40, 20, 0, 40, 20, 0, 0, 0 }, subtracao[8] = { 0, 0, 20, 0, 0, 20, 0, 0 };
+	int j;
 	FILE *file;
 	long int tamanhoFile, tamanhoImg;
 	char inputtFileDir[64] = "in\\", outputFileDir[64] = "out\\";
-	struct pontoflutuante fatores, b, c;
+	struct pontoflutuante fatores;
 
 	fatores.x = 0.3; fatores.y = 0.59; fatores.z = 0.11; fatores.w = 1.0;
 
@@ -66,95 +65,72 @@ int main(int argc, char** argv)
 			// b = media - 20
 
 			
-			temp = &imagem[j];
+			ponteiro = &imagem[j];
 						
 
 			__asm
 			{
 				// Converte para floats 8 bytes da imagem e e coloca em b e c
-				finit
-				mov ebx, temp
-				mov al, [ebx]
-				mov red, eax
-				fild red
-				fstp b
-				mov al, [ebx + 1]
-				mov green, eax
-				fild green
-				fstp b[4]
-				mov al, [ebx + 2]
-				mov blue, eax
-				fild blue
-				fstp b[8]
-				mov al, [ebx + 3]
-				mov redt, eax
-				fild redt
-				fstp b[12]
+				mov edx, ponteiro
+				movd xmm1, [edx]
+				pxor xmm4, xmm4
+				punpcklbw xmm1, xmm4
+				punpcklwd xmm1, xmm4
+				cvtdq2ps xmm1, xmm1
 
-				mov al, [ebx + 3 ] 
-				mov red, eax
-				fild red
-				fstp c
-				mov al, [ebx + 4]
-				mov green, eax
-				fild green
-				fstp c[4]
-				mov al, [ebx + 5]
-				mov blue, eax
-				fild blue
-				fstp c[8]
-				mov al, [ebx + 6]
-				mov redt, eax
-				fild redt
-				fstp c[12]
+
+				movd xmm2, [edx + 3]
+				punpcklbw xmm2, xmm4
+				punpcklwd xmm2, xmm4
+				cvtdq2ps xmm2, xmm2
 
 				
 				// Multiplica as cores das imagems pelos fatores
 				lea eax, fatores
-				lea ebx, b
-				lea ecx, c
 				movups xmm0, [eax]
-				movups xmm1, [ebx]
-				movups xmm2, [ecx]
 				mulps xmm1, xmm0
 				mulps xmm2, xmm0
-				movups [ebx], xmm1
-				movups [ecx], xmm2
-
-			}
 
 
+				cvtps2dq xmm1,xmm1
+				cvtps2dq xmm2,xmm2
 
-			imagem[j]	    = (unsigned char)b.x;
-			imagem[j + 1] = (unsigned char)b.y;
-			imagem[j + 2] = (unsigned char)b.z;
-			imagem[j + 3] = (unsigned char)b.w;
+				packusdw xmm1, xmm4
+				packuswb xmm1, xmm4
+				packusdw xmm2, xmm4
+				packuswb xmm2, xmm4
 
-			imagem[j + 3] = (unsigned char)c.x;
-			imagem[j + 4] = (unsigned char)c.y;
-			imagem[j + 5] = (unsigned char)c.z;
-			imagem[j + 6] = (unsigned char)c.w;
 
-			imagem[j] += imagem[j + 1] + imagem[j + 2];
-			imagem[j + 1] = imagem[j];
-			imagem[j + 2] = imagem[j];
+				movd[edx], xmm1
+				movd[edx + 3], xmm2
 
-			imagem[j + 3] += imagem[j + 4] + imagem[j + 5];
-			imagem[j + 4] = imagem[j + 3];
-			imagem[j + 5] = imagem[j + 3];
+				mov eax, 0
+				mov al, [edx]
+				add al, [edx + 1]
+				add al, [edx + 2]
 
-			__asm
-			{
-				mov eax, temp
-				movq mm0, [eax]
+				mov [edx], al
+				mov [edx + 1], al
+				mov [edx + 2], al
+
+				mov al, [edx + 3]
+				add al, [edx + 4]
+				add al, [edx + 5]
+
+				mov [edx + 3], al
+				mov [edx + 4], al
+				mov [edx + 5], al
+
+
+				
+				movq mm0, [edx]
 				movq mm3, soma
 				movq mm4, subtracao
 				paddusb mm0, mm3
 				psubusb mm0, mm4
 
 
-				mov eax, temp
-				movq[eax], mm0
+				movq[edx], mm0
 
 				emms
 			}
